@@ -1,5 +1,13 @@
 {
   "src": [
-    "pages/Index"
+    "pages/Index",
+    "pages/UpdatePage",
+    "pages/LoginPage",
+    
+    "pages/admin/adminAnno",
+    "pages/admin/adminBilling",
+    "pages/admin/adminPayment",
+    "pages/admin/adminRepair",
+    "pages/admin/adminUser"
   ]
 }

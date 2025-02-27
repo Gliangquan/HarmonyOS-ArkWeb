@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Update Profile</title>
+</head>
+<body>
+<h1>用户信息</h1>
+<div id="userName"></div>
+
+<script>
+    // 监听自定义事件，更新用户信息
+    window.addEventListener('userInfoInjected', () => {
+        if (window.userInfo.userVO) {
+            document.getElementById('userName').textContent = '用户名：' + (window.userInfo.userVO.userName || '');
+        }
+    });
+</script>
+</body>
+</html>

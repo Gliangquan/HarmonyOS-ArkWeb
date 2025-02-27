@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .selected-count {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #007bff;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .pagination button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: 1px solid #007bff;
+            background-color: #fff;
+            color: #007bff;
+            cursor: pointer;
+        }
+        .pagination button.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        /* 固定宽度的列 */
+        th:nth-child(1), td:nth-child(1) { min-width: 50px; } /* ID */
+        th:nth-child(4), td:nth-child(4) { width: 80px; } /* 状态 */
+        th:nth-child(6), td:nth-child(6) { width: 100px; } /* 电话 */
+
+        /* 自适应宽度的列 */
+        th:nth-child(2), td:nth-child(2) { width: auto; } /* 用户名 */
+        th:nth-child(3), td:nth-child(3) { width: auto; } /* 角色 */
+        th:nth-child(5), td:nth-child(5) { width: auto; } /* 邮箱 */
+        th:nth-child(7), td:nth-child(7) { width: auto; } /* 注册时间 */
+        th:nth-child(8), td:nth-child(8) { width: auto; } /* 最后登录 */
+    </style>
+</head>
+<body>
+<h1>用户管理</h1>
+<div class="selected-count">已选择：<span id="selectedCount">0</span> 条
+    <button onclick="deleteSelectedUsers()" id="deleteSelectedBtn" disabled>删除选中</button>
+</div>
+<div class="table-container">
+    <table id="userTable">
+        <thead>
+        <tr>
+            <th><input type="checkbox" id="selectAll"></th>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>角色</th>
+            <th>状态</th>
+            <th>邮箱</th>
+            <th>电话</th>
+            <th>注册时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 数据行由 JavaScript 动态生成 -->
+        </tbody>
+    </table>
+</div>
+<div class="pagination">
+    <button onclick="prevPage()">上一页</button>
+    <span id="pageInfo"></span>
+    <button onclick="nextPage()">下一页</button>
+</div>
+
+<script src="js/adminUser.js"></script>
+<script>
+    let currentPage = 1;
+    const rowsPerPage = 5;
+    const selectedRows = new Set();
+    let users = []; // 存储真实数据
+
+    // 渲染表格
+    function renderTable() {
+        const tbody = document.querySelector('#userTable tbody');
+        tbody.innerHTML = '';
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = users.slice(start, end);
+
+        pageData.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="checkbox" data-id="${user.id}" onchange="updateSelectedCount()"></td>
+                <td>${user.id}</td>
+                <td>${user.userName || user.userAccount}</td>
+                <td>${user.userRole}</td>
+                <td>${user.isDelete === 0 ? '激活' : '禁用'}</td>
+                <td>${user.userEmail || '无'}</td>
+                <td>${user.userPhone}</td>
+                <td>${new Date(user.createTime).toLocaleString()}</td>
+                <td>
+                    <button onclick="editUser(${user.id})">修改</button>
+                    <button onclick="deleteUser(${user.id})">删除</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        updatePageInfo();
+    }
+
+    // 更新分页信息
+    function updatePageInfo() {
+        const pageInfo = document.getElementById('pageInfo');
+        pageInfo.textContent = `第 ${currentPage} 页 / 共 ${Math.ceil(users.length / rowsPerPage)} 页`;
+    }
+
+    // 上一页
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
+
+    // 下一页
+    function nextPage() {
+        if (currentPage < Math.ceil(users.length / rowsPerPage)) {
+            currentPage++;
+            renderTable();
+        }
+    }
+
+    // 更新已选择条数
+    function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('#userTable tbody input[type="checkbox"]');
+        selectedRows.clear();
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedRows.add(checkbox.getAttribute('data-id'));
+            }
+        });
+        document.getElementById('selectedCount').textContent = selectedRows.size;
+        document.getElementById('deleteSelectedBtn').disabled = selectedRows.size === 0;
+    }
+
+    // 全选/全不选
+    document.getElementById('selectAll').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('#userTable tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateSelectedCount();
+    });
+
+    // 删除选中的用户
+    function deleteSelectedUsers() {
+        if (selectedRows.size === 0) {
+            alert('请选择至少一条记录');
+            return;
+        }
+
+        if (confirm('确定要删除选中的用户吗？')) {
+            // 调用删除接口
+            selectedRows.forEach(id => {
+                deleteUser(id); // 假设 deleteUser 是删除单个用户的函数
+            });
+            // 删除后刷新页面
+            window.location.reload();
+        }
+    }
+
+    // 修改用户
+    function editUser(id) {
+        // 跳转到修改页面或弹出修改对话框
+        console.log('修改用户:', id);
+        // 这里可以根据实际需求实现修改逻辑
+    }
+
+    // 删除用户
+    function deleteUser(id) {
+        if (confirm('确定要删除该用户吗？')) {
+            // 调用删除接口
+            listUserByPage.deleteUser(id).then(() => {
+                // 删除成功后刷新页面
+                window.location.reload();
+            }).catch((error) => {
+                console.error('删除失败:', error);
+            });
+        }
+    }
+
+    // 初始化
+    window.onload = function() {
+        let userQueryRequest = {};
+        listUserByPage.listUserByPage(userQueryRequest).then((isUserByPage) => {
+            if (isUserByPage) {
+                users = listUserByPage.getPage(); // 获取真实数据
+                console.log("用户数据：", users);
+                renderTable(); // 渲染表格
+            }
+        }).catch((error) => {
+            console.error("Error:", error);
+        });
+    };
+</script>
+</body>
+</html>
