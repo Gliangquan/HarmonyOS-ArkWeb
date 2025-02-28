@@ -1,5 +1,8 @@
 import { AxiosRequestConfig } from '@ohos/axios';
 import { axiosAPI } from '../BaseRequest';
+import { DeleteRequest } from '../models/DeleteRequest';
+import { DeletesRequest } from '../models/DeletesRequest';
+import { UserAddRequest } from '../models/UserAddRequest';
 import { UserLoginRequest } from '../models/UserLoginRequest';
 import { UserQueryRequest } from '../models/UserQueryRequest';
 import { UserRegisterRequest } from '../models/UserRegisterRequest';
@@ -53,6 +56,33 @@ const listUserByPage = (params: UserQueryRequest)=>{
   return axiosAPI.post<object>(config)
 }
 
+const addUser = (params: UserAddRequest)=>{
+  const config: AxiosRequestConfig = {
+    url: '/api/user/add',
+    method: 'POST',
+    data: params,
+  };
+  return axiosAPI.post<object>(config)
+}
+
+const deleteUser = (params: DeleteRequest)=>{
+  const config: AxiosRequestConfig = {
+    url: '/api/user/delete',
+    method: 'POST',
+    data: params,
+  };
+  return axiosAPI.post<object>(config)
+}
+
+const deletesUser = (params: DeletesRequest)=>{
+  const config: AxiosRequestConfig = {
+    url: '/api/user/deleteBatch',
+    method: 'POST',
+    data: params,
+  };
+  return axiosAPI.post<object>(config)
+}
+
 export const UserService = {
   userRegister,
   userLoginUsingPost,
@@ -60,5 +90,8 @@ export const UserService = {
   updateMyUser,
 
   // admin
-  listUserByPage
+  listUserByPage,
+  addUser,
+  deleteUser,
+  deletesUser
 };

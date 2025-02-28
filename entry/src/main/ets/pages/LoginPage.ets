@@ -25,11 +25,11 @@ class LoginUserClass {
   onLogin = async (params: string): Promise<void> => {
     try {
       const parsedParams: UserLoginRequest = JSON.parse(params);
-      const userAccount = parsedParams.userAccount;
+      const userPhone = parsedParams.userPhone;
       const userPassword = parsedParams.userPassword;
-      if (!userAccount?.trim() || !userPassword?.trim()) {
+      if (!userPhone?.trim() || !userPassword?.trim()) {
         promptAction.showToast({
-          message: '用户名和密码不能为空'
+          message: '手机号和密码不能为空'
         });
       }
       const response: AxiosResponse = await UserService.userLoginUsingPost(parsedParams) as AxiosResponse;
@@ -62,16 +62,19 @@ class LoginUserClass {
       });
     }
   };
+
   // 注册
   onRegister = async (params: string): Promise<void> => {
     try {
       const parsedParams: UserRegisterRequest = JSON.parse(params);
+      const userPhone = parsedParams.userPhone;
       const userAccount = parsedParams.userAccount;
       const userPassword = parsedParams.userPassword;
       const checkPassword = parsedParams.checkPassword;
-      if (!userAccount?.trim() || !userPassword?.trim() || !checkPassword?.trim()) {
+
+      if (!userAccount?.trim() || !userPhone?.trim() || !userPassword?.trim() || !checkPassword?.trim()) {
         promptAction.showToast({
-          message: '用户名、密码和确认密码不能为空',
+          message: '账号，手机号、密码和确认密码不能为空',
         });
       }
       if (userPassword !== checkPassword) {

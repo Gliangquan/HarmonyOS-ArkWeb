@@ -50,7 +50,7 @@ class BaseRequest {
 }
 
 export const axiosAPI = new BaseRequest({
-  baseURL: 'https://261c8709.r26.cpolar.top',
+  baseURL: 'http://2b5a80c0.r26.cpolar.top',
   timeout: 60000,
   withCredentials: true
 });
